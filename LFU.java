@@ -12,6 +12,22 @@ class FreqNode {
         value = 0;
         items = new LinkedHashSet<>();
     }
+
+    public void deleteNode(FreqNode node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    public FreqNode getNewNode(int value, FreqNode prev, FreqNode next) {
+        FreqNode newNode = new FreqNode();
+        newNode.value = value;
+        newNode.prev = prev;
+        newNode.next = next;
+        prev.next = newNode;
+        next.prev = newNode;
+
+        return newNode;
+    }
 }
 
 class LFUItem {
