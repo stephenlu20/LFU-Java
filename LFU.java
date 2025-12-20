@@ -2,13 +2,39 @@ import java.util.*;
 
 // O(1) algorithm for implementing the LFU cache eviction scheme
 
+// Additional implementation so that items does not need to be an ArrayList
+// but is instead a doubly linked list, as originally intended
+// since using SET was for simplicity, but not the original described algorithm
+class Node<T> {
+    T next;
+    T prev;
+}
+
+class ItemNode extends Node<ItemNode> {
+    int key;
+
+    public ItemNode(int key) {
+        this.key = key;
+        next = this;
+        prev = this;
+    }
+}
+
+class ItemLinkedList {
+    ItemNode head;
+
+    public ItemLinkedList() {
+        head = null;
+    }
+}
 
 // Frequency is tracked using a doubly linked list
 // each node holds a value, which is an int representing the frequency of access
-// and a ArrayList of items, which are the keys that are used to reference the LFUItem hashmap
-class FreqNode {
-    FreqNode next;
-    FreqNode prev;
+// and a doubly linked list of items, which are the keys that are used to reference the LFUItem hashmap
+// ArrayList was originally used instead of a Java Set or a linked listfor simplicity of implementation, since the
+// only use for the items set was to do a O(1) reference to the first item
+
+class FreqNode extends Node<FreqNode>{
     int value;
     ArrayList<Integer> items;
 
