@@ -21,6 +21,8 @@ class FreqNode {
 }
 
 // Each item in the LFU has its data and a pointer to the frequency node it is under
+// data is currently an object to all any data type as "data"
+// this may change as the implementation continues
 class LFUItem {
     Object data;
     FreqNode parent;
@@ -50,7 +52,9 @@ class LFUCache {
 public class LFU {
     LFUCache lfuCache = new LFUCache();
 
-    public FreqNode access(Integer key) {
+    // Access (fetch) an element from the LFU cache, simultaneously incrementing its
+    // usage count
+    public Object access(Integer key) {
         LFUItem tmp = lfuCache.byKey.get(key);
         if (tmp == null) {
             throw new NullPointerException("Key does not exist");
@@ -63,7 +67,17 @@ public class LFU {
             next_freq = getNewNode(freq.value + 1, freq, freq.next);
         }
         next_freq.items.add(key);
+        tmp.parent = next_freq;
+
+        freq.items.remove(key);
+        if (freq.items.size() == 0) {
+            deleteNode(freq);
+        }
+
+        return tmp.data;
     }
+
+    // Helper functions
 
     public void deleteNode(FreqNode node) {
         node.prev.next = node.next;
