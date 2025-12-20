@@ -21,7 +21,9 @@ public class LFUTest {
         LFU lfu = new LFU();
         lfu.insert(1, 100);
 
-        Object value = lfu.access(1);
+        ItemNode node = lfu.lfuCache.byKey.get(1).itemNode;
+        Object value = lfu.access(node);
+
         if (!value.equals(100)) {
             throw new RuntimeException("Expected value 100, got " + value);
         }
@@ -35,8 +37,9 @@ public class LFUTest {
         LFU lfu = new LFU();
         lfu.insert(1, 100);
 
-        lfu.access(1);
-        lfu.access(1);
+        ItemNode node = lfu.lfuCache.byKey.get(1).itemNode;
+        lfu.access(node);
+        lfu.access(node);
 
         LFUItem item = lfu.lfuCache.byKey.get(1);
         if (item.parent.value != 3) {
@@ -56,9 +59,12 @@ public class LFUTest {
         lfu.insert(2, 200);
         lfu.insert(3, 300);
 
-        lfu.access(1); // increment frequency to 2
-        lfu.access(1); // increment frequency to 3
-        lfu.access(2); // increment frequency to 2
+        ItemNode node1 = lfu.lfuCache.byKey.get(1).itemNode;
+        ItemNode node2 = lfu.lfuCache.byKey.get(2).itemNode;
+
+        lfu.access(node1); // increment frequency to 2
+        lfu.access(node1); // increment frequency to 3
+        lfu.access(node2); // increment frequency to 2
 
         LFUItem item1 = lfu.lfuCache.byKey.get(1);
         LFUItem item2 = lfu.lfuCache.byKey.get(2);
@@ -85,9 +91,12 @@ public class LFUTest {
         lfu.insert(2, 200);
         lfu.insert(3, 300);
 
-        lfu.access(1);
-        lfu.access(1);
-        lfu.access(2);
+        ItemNode node1 = lfu.lfuCache.byKey.get(1).itemNode;
+        ItemNode node2 = lfu.lfuCache.byKey.get(2).itemNode;
+
+        lfu.access(node1);
+        lfu.access(node1);
+        lfu.access(node2);
 
         LFUItem lfuItem = lfu.getLfuItem();
         if (!lfuItem.data.equals(300)) {
@@ -105,10 +114,9 @@ public class LFUTest {
         LFU lfu = new LFU();
         lfu.insert(1, 100);
 
-        // Move item from freq 1 to freq 2
-        lfu.access(1);
+        ItemNode node = lfu.lfuCache.byKey.get(1).itemNode;
+        lfu.access(node); // move from freq 1 → freq 2
 
-        // After access, freq 1 node should be deleted
         if (lfu.lfuCache.head.next.value == 1) {
             throw new RuntimeException("Frequency 1 node was not deleted");
         }
@@ -123,7 +131,7 @@ public class LFUTest {
         boolean threw = false;
 
         try {
-            lfu.access(99);
+            lfu.access(new ItemNode(99));
         } catch (NullPointerException e) {
             threw = true;
         }
