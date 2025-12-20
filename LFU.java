@@ -1,5 +1,11 @@
 import java.util.*;
 
+// O(1) algorithm for implementing the LFU cache eviction scheme
+
+
+// Frequency is tracked using a doubly linked list
+// each node holds a value, which is an int representing the frequency of access
+// and a Set of items, which are the keys that are used to reference the LFUItem hashmap
 class FreqNode {
     FreqNode next;
     FreqNode prev;
@@ -14,6 +20,7 @@ class FreqNode {
     }
 }
 
+// Each item in the LFU has its data and a pointer to the frequency node it is under
 class LFUItem {
     Object data;
     FreqNode parent;
@@ -24,6 +31,10 @@ class LFUItem {
     }
 }
 
+// The actual cache class.
+// holds the head of the doubly linked list
+// and the hashmap that holds the LFUItems
+// referenced by key
 class LFUCache {
     HashMap<Integer, LFUItem> byKey;
     FreqNode head;
@@ -34,6 +45,8 @@ class LFUCache {
     }
 }
 
+// class that holds all the methods and an instance of
+// the cache
 public class LFU {
     LFUCache lfuCache = new LFUCache();
 
