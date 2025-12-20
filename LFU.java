@@ -15,16 +15,54 @@ class ItemNode extends Node<ItemNode> {
 
     public ItemNode(int key) {
         this.key = key;
-        next = this;
-        prev = this;
+        next = null;
+        prev = null;
     }
 }
 
 class ItemLinkedList {
     ItemNode head;
+    ItemNode tail;
 
     public ItemLinkedList() {
         head = null;
+        tail = null;
+    }
+
+    // Add a new node to the end of the linked list
+    public void add(ItemNode node) {
+        node.next = null;
+        node.prev = null;
+
+        if (head == null) {
+            head = tail = node;
+        } else {
+            tail.next = node;
+            node.prev = tail;
+            tail = node;
+        }
+    }
+
+    // Remove a node
+    public void remove(ItemNode node) {
+        if (node.prev != null) {
+            node.prev.next = node.next;
+        } else {
+            head = node.next;
+        }
+
+        if (node.next != null) {
+            node.next.prev = node.prev;
+        } else {
+            tail = node.prev;
+        }
+
+        node.next = null;
+        node.prev = null;
+    }
+
+    public boolean isEmpty() {
+        return head == null;
     }
 }
 
@@ -82,8 +120,8 @@ public class LFU {
 
     // Access (fetch) an element from the LFU cache, simultaneously incrementing its
     // usage count
-    public Object access(Integer key) {
-        LFUItem tmp = lfuCache.byKey.get(key);
+    public Object access(ItemNode node) {
+        LFUItem tmp = lfuCache.byKey.get(node.key);
         if (tmp == null) {
             throw new NullPointerException("Key does not exist");
         }
@@ -94,11 +132,11 @@ public class LFU {
         if (next_freq == lfuCache.head || next_freq.value != freq.value + 1) {
             next_freq = getNewNode(freq.value + 1, freq, freq.next);
         }
-        next_freq.items.add(key);
+        next_freq.items.add(node);
         tmp.parent = next_freq;
 
-        freq.items.remove(key);
-        if (freq.items.size() == 0) {
+        freq.items.remove(node);
+        if (freq.items.head == null && freq.items.tail == null) {
             deleteNode(freq);
         }
 
@@ -115,8 +153,9 @@ public class LFU {
         if (freq.value != 1) {
             freq = getNewNode(1, lfuCache.head, freq);
         }
-        freq.items.add(key);
-        lfuCache.byKey.put(key, new LFUItem(value, freq));
+        ItemNode node = new ItemNode(key);
+        freq.items.add(node);
+        lfuCache.byKey.put(key, new LFUItem(value, freq, node));
     }
 
     // Fetches an item with the least usage count (the least frequently used item) in the cache
@@ -125,7 +164,7 @@ public class LFU {
             throw new NullPointerException("The set is empty");
         }
 
-        return lfuCache.byKey.get(lfuCache.head.next.items.get(0));
+        return lfuCache.byKey.get(lfuCache.head.next.items.head.key);
     }
 
     // Helper functions
