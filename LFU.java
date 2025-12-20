@@ -36,13 +36,13 @@ class ItemLinkedList {
 
 class FreqNode extends Node<FreqNode>{
     int value;
-    ArrayList<Integer> items;
+    ItemLinkedList items;
 
     public FreqNode() {
         next = this;
         prev = this;
         value = 0;
-        items = new ArrayList<>();
+        items = new ItemLinkedList();
     }
 }
 
@@ -52,10 +52,12 @@ class FreqNode extends Node<FreqNode>{
 class LFUItem {
     Object data;
     FreqNode parent;
+    ItemNode itemNode;
 
-    public LFUItem(Object data, FreqNode parent) {
+    public LFUItem(Object data, FreqNode parent, ItemNode itemNode) {
         this.data = data;
         this.parent = parent;
+        this.itemNode = itemNode;
     }
 }
 
