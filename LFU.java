@@ -5,18 +5,18 @@ import java.util.*;
 
 // Frequency is tracked using a doubly linked list
 // each node holds a value, which is an int representing the frequency of access
-// and a Set of items, which are the keys that are used to reference the LFUItem hashmap
+// and a ArrayList of items, which are the keys that are used to reference the LFUItem hashmap
 class FreqNode {
     FreqNode next;
     FreqNode prev;
     int value;
-    Set<Integer> items;
+    ArrayList<Integer> items;
 
     public FreqNode() {
         next = this;
         prev = this;
         value = 0;
-        items = new LinkedHashSet<>();
+        items = new ArrayList<>();
     }
 }
 
@@ -75,6 +75,29 @@ public class LFU {
         }
 
         return tmp.data;
+    }
+
+    // Insert a new element into the LFU cache
+    public void insert(int key, int value) {
+        if (lfuCache.byKey.containsKey(key)) {
+            throw new IllegalArgumentException ("Key already exists");
+        }
+
+        FreqNode freq = lfuCache.head.next;
+        if (freq.value != 1) {
+            freq = getNewNode(1, lfuCache.head, freq);
+        }
+        freq.items.add(key);
+        lfuCache.byKey.put(key, new LFUItem(value, freq));
+    }
+
+    // Fetches an item with the least usage count (the least frequently used item) in the cache
+    public LFUItem getLfuItem() {
+        if (lfuCache.byKey.size() == 0) {
+            throw new NullPointerException("The set is empty");
+        }
+
+        return lfuCache.byKey.get(lfuCache.head.next.items.get(0));
     }
 
     // Helper functions
